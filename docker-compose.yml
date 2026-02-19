@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  nrega-bookmarks:
+    build: .
+    container_name: nrega_bookmarks_app
+    restart: unless-stopped
+    ports:
+      - "6000:5000"
+    volumes:
+      # Database file ko container ke bahar safe rakhne ke liye
+      - ./instance:/app/instance

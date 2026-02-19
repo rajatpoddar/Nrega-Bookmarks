@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+
+# Database (To prevent overwriting NAS database with local one)
+instance/
+*.db
+*.sqlite3
+
+# Mac specific
+.DS_Store
+
+# Docker & Deployment scripts
+Dockerfile
+docker-compose.yml
+update.sh

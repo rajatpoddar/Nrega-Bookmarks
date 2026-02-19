@@ -17,6 +17,19 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         
+        <div class="glass-card p-6 rounded-2xl border border-white/5 md:col-span-2">
+            <h2 class="text-lg font-semibold text-nregagreen mb-4 border-b border-white/5 pb-2">
+                <i class="fa-solid fa-bullhorn mr-2"></i> Promotional & Greeting Message
+            </h2>
+            <form action="/admin/update_greeting" method="POST" class="flex flex-col gap-3">
+                <label class="text-sm font-medium text-slate-300">Set a custom message for all users (Leave blank for default Good Morning/Afternoon)</label>
+                <textarea name="greeting_message" rows="2" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition" placeholder="e.g. Subscribe to NREGA BOT today!">{{ custom_greeting }}</textarea>
+                <button type="submit" class="bg-nregagreen hover:bg-emerald-600 text-white font-medium rounded-lg px-6 py-2.5 w-fit mt-1 transition shadow-lg shadow-nregagreen/20">
+                    Save Message
+                </button>
+            </form>
+        </div>
+
         <div class="glass-card p-6 rounded-2xl border border-white/5">
             <h2 class="text-lg font-semibold text-nregagreen mb-4 border-b border-white/5 pb-2">Add New Category</h2>
             <form action="/admin/add_category" method="POST" class="space-y-4">
@@ -71,7 +84,7 @@
 
                 <div class="flex items-center gap-2 mt-2 bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/20">
                     <input type="checkbox" name="is_dynamic" id="is_dynamic" class="w-4 h-4 accent-yellow-500 bg-slate-800 border-slate-600 rounded">
-                    <label for="is_dynamic" class="text-sm text-yellow-500/90 cursor-pointer font-medium">This is a Dynamic Link (Updates per District/Block)</label>
+                    <label for="is_dynamic" class="text-sm text-yellow-500/90 cursor-pointer font-medium">This is a Dynamic Link</label>
                 </div>
 
                 <button type="submit" class="w-full bg-nregagreen hover:bg-emerald-600 text-white font-medium rounded-lg px-4 py-2.5 mt-2 transition shadow-lg shadow-nregagreen/20">
@@ -156,7 +169,16 @@
         </div>
 
         <div class="glass-card rounded-2xl p-6 border border-white/5">
-            <h2 class="text-lg font-semibold text-white mb-4">Current Links</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-white">Current Links</h2>
+                <select id="linkCategoryFilter" onchange="filterLinks()" class="bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-nregagreen transition">
+                    <option value="all">-- All Categories --</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-300">
                     <thead class="text-xs text-slate-400 uppercase bg-slate-800/50 border-b border-white/10">
@@ -168,7 +190,7 @@
                     </thead>
                     <tbody>
                         {% for link in links %}
-                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                        <tr class="link-row border-b border-white/5 hover:bg-white/5 transition" data-cat-id="{{ link.category_id }}">
                             <td class="px-4 py-3 font-medium text-white flex items-center gap-2">
                                 <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-link' }} text-slate-500"></i> {{ link.title }}
                             </td>
@@ -191,4 +213,17 @@
     </div>
 
 </div>
+
+<script>
+    function filterLinks() {
+        const selectedCat = document.getElementById('linkCategoryFilter').value;
+        document.querySelectorAll('.link-row').forEach(row => {
+            if (selectedCat === 'all' || row.getAttribute('data-cat-id') === selectedCat) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
 {% endblock %}

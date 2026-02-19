@@ -46,6 +46,12 @@ class Link(db.Model):
     is_dynamic = db.Column(db.Boolean, default=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
 
+# Naya model Setting save karne ke liye (Jaise ki Greeting Message)
+class Setting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    value = db.Column(db.String(500), nullable=True)
+
 with app.app_context():
     db.create_all()
 
@@ -57,7 +63,12 @@ def index():
     apps = [c for c in categories if c.is_application]
     bookmarks = [c for c in categories if not c.is_application]
     districts = District.query.order_by(District.name).all()
-    return render_template('index.html', apps=apps, bookmarks=bookmarks, districts=districts)
+    
+    # Custom greeting fetch karna
+    greeting_setting = Setting.query.filter_by(key='greeting_message').first()
+    custom_greeting = greeting_setting.value if greeting_setting and greeting_setting.value else ""
+    
+    return render_template('index.html', apps=apps, bookmarks=bookmarks, districts=districts, custom_greeting=custom_greeting)
 
 @app.route('/get_blocks/<int:district_id>')
 def get_blocks(district_id):
@@ -72,7 +83,23 @@ def admin():
     categories = Category.query.order_by(Category.sort_order).all()
     links = Link.query.all()
     bookmark_requests = BookmarkRequest.query.all() 
-    return render_template('admin.html', categories=categories, links=links, requests=bookmark_requests)
+    
+    greeting_setting = Setting.query.filter_by(key='greeting_message').first()
+    custom_greeting = greeting_setting.value if greeting_setting else ""
+    
+    return render_template('admin.html', categories=categories, links=links, requests=bookmark_requests, custom_greeting=custom_greeting)
+
+@app.route('/admin/update_greeting', methods=['POST'])
+def update_greeting():
+    message = request.form.get('greeting_message')
+    setting = Setting.query.filter_by(key='greeting_message').first()
+    if not setting:
+        setting = Setting(key='greeting_message', value=message)
+        db.session.add(setting)
+    else:
+        setting.value = message
+    db.session.commit()
+    return redirect(url_for('admin'))
 
 @app.route('/admin/add_category', methods=['POST'])
 def add_category():
@@ -113,7 +140,6 @@ def add_link():
 
 @app.route('/admin/edit_link/<int:id>')
 def edit_link(id):
-    # Jo link edit karna hai use DB se nikalo
     link = Link.query.get_or_404(id)
     categories = Category.query.order_by(Category.sort_order).all()
     return render_template('edit_link.html', link=link, categories=categories)
@@ -121,8 +147,6 @@ def edit_link(id):
 @app.route('/admin/update_link/<int:id>', methods=['POST'])
 def update_link(id):
     link = Link.query.get_or_404(id)
-    
-    # Form se naya data fetch karke DB me update karo
     link.title = request.form.get('title')
     link.url = request.form.get('url')
     link.icon_class = request.form.get('icon_class')
@@ -159,10 +183,9 @@ def approve_request(req_id):
     req = BookmarkRequest.query.get(req_id)
     if req:
         cat_id = request.form.get('category_id')
-        # Default MDI icon set kar diya hai, baad me edit kar sakte ho
         new_link = Link(title=req.title, url=req.url, icon_class='mdi mdi-link-variant', is_dynamic=False, category_id=cat_id)
         db.session.add(new_link)
-        db.session.delete(req) # Approve hone ke baad request delete kar do
+        db.session.delete(req) 
         db.session.commit()
     return redirect(url_for('admin'))
 
@@ -175,5 +198,4 @@ def delete_request(req_id):
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    # host='0.0.0.0' lagane se app mobile par access ho payega
     app.run(host='0.0.0.0', debug=True, port=5000)

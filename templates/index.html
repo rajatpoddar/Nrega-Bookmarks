@@ -18,9 +18,11 @@
             </div>
 
             <div class="flex justify-between items-start border-b border-white/10 pb-5">
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 w-full max-w-[80%]">
                     <p class="text-nregagreen text-[10px] font-bold tracking-widest uppercase" id="current-date">Loading date...</p>
-                    <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight" id="greeting-text">Good day!</h1>
+                    
+                    <input type="hidden" id="customGreetingVal" value="{{ custom_greeting }}">
+                    <h1 class="font-bold text-white tracking-tight transition-all duration-300 leading-tight" id="greeting-text" style="word-wrap: break-word;">Good day!</h1>
                     
                     <div class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 mt-2 rounded-full bg-nregagreen/10 border border-nregagreen/20 text-nregagreen w-fit">
                         <i class="fa-solid fa-location-dot"></i>
@@ -42,17 +44,23 @@
             </div>
 
             <div class="mt-2">
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Applications</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Applications</h2>
+                    <button onclick="toggleApplications()" class="text-slate-400 hover:text-nregagreen text-sm flex items-center gap-2 transition px-2 py-1 glass-card rounded-lg">
+                        <i id="appToggleIcon" class="fa-solid fa-eye-slash"></i> <span id="appToggleText">Hide</span>
+                    </button>
+                </div>
+                
+                <div id="applicationsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300">
                     {% for app_cat in apps %}
                         {% for link in app_cat.links %}
                         <a href="{{ link.url if not link.is_dynamic else '#' }}" target="_blank"
                            {% if link.is_dynamic %}data-template="{{ link.url }}"{% endif %}
                            class="glass-card rounded-xl p-4 flex items-center gap-3 hover:bg-white/10 transition group">
-                            <div class="w-10 h-10 rounded-lg bg-nregagreen/20 text-nregagreen flex items-center justify-center group-hover:scale-110 transition shadow-lg shadow-nregagreen/10">
+                            <div class="w-10 h-10 rounded-lg bg-nregagreen/20 text-nregagreen flex items-center justify-center group-hover:scale-110 transition shadow-lg shadow-nregagreen/10 min-w-[40px]">
                                 <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-rocket' }} text-lg"></i>
                             </div>
-                            <span class="font-semibold text-sm text-white">{{ link.title }}</span>
+                            <span class="font-semibold text-sm text-white break-words">{{ link.title }}</span>
                         </a>
                         {% endfor %}
                     {% else %}
@@ -66,12 +74,14 @@
             </div>
 
             <div>
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Bookmarks</h2>
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 mt-4">Bookmarks</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                     
                     {% for cat in bookmarks %}
-                    <div class="glass-card p-5 rounded-xl">
-                        <h3 class="text-nregagreen font-semibold text-xs uppercase tracking-wider mb-4 border-b border-nregagreen/20 pb-2">{{ cat.name }}</h3>
+                    <div class="glass-card p-5 rounded-xl border-t-[3px] border-t-nregagreen">
+                        <h3 class="text-nregagreen font-extrabold text-lg md:text-xl text-center uppercase tracking-widest mb-5 border-b border-white/10 pb-3 bg-nregagreen/5 rounded-t-lg py-2">
+                            {{ cat.name }}
+                        </h3>
                         <ul class="space-y-3">
                             {% for link in cat.links %}
                             <li>
@@ -117,12 +127,14 @@
         <div class="space-y-5">
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-2">Choose Theme</label>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                     <button type="button" onclick="setThemePreview('theme-slate')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-[#10b981] hover:scale-110 transition theme-btn" data-theme-val="theme-slate" title="Default Slate"></button>
                     <button type="button" onclick="setThemePreview('theme-nrega')" class="w-8 h-8 rounded-full bg-[#1a1f1b] border-2 border-[#50fbc2] hover:scale-110 transition theme-btn" data-theme-val="theme-nrega" title="NREGA Classic"></button>
                     <button type="button" onclick="setThemePreview('theme-midnight')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-[#3b82f6] hover:scale-110 transition theme-btn" data-theme-val="theme-midnight" title="Midnight Blue"></button>
                     <button type="button" onclick="setThemePreview('theme-coffee')" class="w-8 h-8 rounded-full bg-[#291e18] border-2 border-[#f97316] hover:scale-110 transition theme-btn" data-theme-val="theme-coffee" title="Dark Coffee"></button>
                     <button type="button" onclick="setThemePreview('theme-purple')" class="w-8 h-8 rounded-full bg-[#1e1b4b] border-2 border-[#a855f7] hover:scale-110 transition theme-btn" data-theme-val="theme-purple" title="Sunset Purple"></button>
+                    <button type="button" onclick="setThemePreview('theme-light-day')" class="w-8 h-8 rounded-full bg-[#f8fafc] border-2 border-[#059669] hover:scale-110 transition theme-btn" data-theme-val="theme-light-day" title="Light Day"></button>
+                    <button type="button" onclick="setThemePreview('theme-light-warm')" class="w-8 h-8 rounded-full bg-[#fffbeb] border-2 border-[#d97706] hover:scale-110 transition theme-btn" data-theme-val="theme-light-warm" title="Light Warm"></button>
                 </div>
                 <input type="hidden" id="selectedTheme" value="theme-slate">
             </div>
@@ -186,19 +198,51 @@
     </div>
 </div>
 
-
 <script>
     // --- UI LOGIC ---
     function setDateTime() {
         const now = new Date();
         const hour = now.getHours();
-        let greeting = "Good evening!";
-        if(hour < 12) greeting = "Good morning!";
-        else if(hour < 17) greeting = "Good afternoon!";
-        document.getElementById('greeting-text').textContent = greeting;
+        let defaultGreeting = "Good evening!";
+        if(hour < 12) defaultGreeting = "Good morning!";
+        else if(hour < 17) defaultGreeting = "Good afternoon!";
+        
+        const customGreeting = document.getElementById('customGreetingVal').value.trim();
+        const greetingEl = document.getElementById('greeting-text');
+        
+        const finalText = customGreeting !== "" ? customGreeting : defaultGreeting;
+        greetingEl.textContent = finalText;
+        
+        // Auto-adjust font size based on length
+        const len = finalText.length;
+        if (len > 80) {
+            greetingEl.className = "text-xl md:text-2xl font-bold text-white tracking-tight transition-all duration-300 leading-tight";
+        } else if (len > 40) {
+            greetingEl.className = "text-2xl md:text-3xl font-bold text-white tracking-tight transition-all duration-300 leading-tight";
+        } else {
+            greetingEl.className = "text-4xl md:text-5xl font-bold text-white tracking-tight transition-all duration-300 leading-tight";
+        }
         
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('current-date').textContent = now.toLocaleDateString('en-IN', options).toUpperCase();
+    }
+
+    function toggleApplications() {
+        const container = document.getElementById('applicationsContainer');
+        const icon = document.getElementById('appToggleIcon');
+        const text = document.getElementById('appToggleText');
+        
+        if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+            icon.className = 'fa-solid fa-eye-slash';
+            text.textContent = 'Hide';
+            localStorage.setItem('appsVisible', 'true');
+        } else {
+            container.classList.add('hidden');
+            icon.className = 'fa-solid fa-eye';
+            text.textContent = 'Show';
+            localStorage.setItem('appsVisible', 'false');
+        }
     }
 
     // --- THEME LOGIC ---
@@ -208,14 +252,13 @@
         
         document.querySelectorAll('.theme-btn').forEach(btn => {
             if(btn.dataset.themeVal === themeName) {
-                btn.classList.add('ring-2', 'ring-offset-2', 'ring-offset-darkbg', 'ring-white');
+                btn.classList.add('ring-2', 'ring-offset-2', 'ring-offset-darkbg', 'ring-gray-400');
             } else {
-                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-offset-darkbg', 'ring-white');
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-offset-darkbg', 'ring-gray-400');
             }
         });
     }
 
-    // Ye function request ko bina page reload kiye backend me bhej dega
     async function submitSuggestion(event) {
         event.preventDefault();
         const form = event.target;
@@ -231,7 +274,6 @@
         }
     }
 
-    // --- FUNCTIONAL LOGIC ---
     function toggleModal(modalID) {
         document.getElementById(modalID).classList.toggle('hidden');
     }
@@ -280,7 +322,6 @@
         const distOption = distSelect.options[distSelect.selectedIndex];
         const blockOption = blockSelect.options[blockSelect.selectedIndex];
 
-        // Save preferences
         localStorage.setItem('userTheme', document.getElementById('selectedTheme').value);
         localStorage.setItem('userDistrict', distSelect.value);
         localStorage.setItem('userBlock', blockSelect.value);
@@ -345,6 +386,11 @@
         setDateTime();
         updateDisplay();
         setTimeout(processDynamicLinks, 500);
+
+        // Load apps visibility state
+        if(localStorage.getItem('appsVisible') === 'false') {
+            toggleApplications();
+        }
 
         if(!localStorage.getItem('userDistrict')) {
             toggleModal('settingsModal');

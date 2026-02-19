@@ -22,56 +22,81 @@
             }
         }
 
-        // Page load hone se pehle turant saved theme apply karna (Flicker rokne ke liye)
         const savedTheme = localStorage.getItem('userTheme') || 'theme-slate';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 
     <style>
-        /* THEME VARIABLES */
         /* 1. Default Slate */
         :root, [data-theme="theme-slate"] {
             --color-bg: #0f172a; 
             --color-cardbg: rgba(255, 255, 255, 0.03);
             --color-cardborder: rgba(255, 255, 255, 0.05);
-            --color-accent: #10b981; /* Emerald */
+            --color-accent: #10b981; 
+            --text-main: #ffffff;
         }
-        /* 2. Nrega Classic (Screenshot inspired) */
+        /* 2. Nrega Classic */
         [data-theme="theme-nrega"] {
             --color-bg: #1a1f1b;
             --color-cardbg: rgba(255, 255, 255, 0.02);
             --color-cardborder: rgba(80, 251, 194, 0.1);
-            --color-accent: #50fbc2; /* Neon Mint */
+            --color-accent: #50fbc2;
+            --text-main: #ffffff;
         }
         /* 3. Midnight Blue */
         [data-theme="theme-midnight"] {
             --color-bg: #020617;
             --color-cardbg: rgba(59, 130, 246, 0.05);
             --color-cardborder: rgba(59, 130, 246, 0.1);
-            --color-accent: #3b82f6; /* Blue */
+            --color-accent: #3b82f6; 
+            --text-main: #ffffff;
         }
         /* 4. Dark Coffee */
         [data-theme="theme-coffee"] {
             --color-bg: #291e18;
             --color-cardbg: rgba(255, 255, 255, 0.02);
             --color-cardborder: rgba(249, 115, 22, 0.1);
-            --color-accent: #f97316; /* Orange */
+            --color-accent: #f97316;
+            --text-main: #ffffff;
         }
         /* 5. Sunset Purple */
         [data-theme="theme-purple"] {
             --color-bg: #1e1b4b;
             --color-cardbg: rgba(168, 85, 247, 0.05);
             --color-cardborder: rgba(168, 85, 247, 0.15);
-            --color-accent: #a855f7; /* Purple */
+            --color-accent: #a855f7; 
+            --text-main: #ffffff;
+        }
+        /* 6. Light Day */
+        [data-theme="theme-light-day"] {
+            --color-bg: #f8fafc;
+            --color-cardbg: #ffffff;
+            --color-cardborder: #e2e8f0;
+            --color-accent: #059669; 
+            --text-main: #0f172a;
+        }
+        /* 7. Light Warm */
+        [data-theme="theme-light-warm"] {
+            --color-bg: #fffbeb;
+            --color-cardbg: #ffffff;
+            --color-cardborder: #fde68a;
+            --color-accent: #d97706; 
+            --text-main: #451a03;
         }
 
-        /* Glassmorphism utilities */
+        /* Smart Override for Light Themes */
+        [data-theme*="light"] .text-white { color: var(--text-main) !important; }
+        [data-theme*="light"] .text-slate-300 { color: #475569 !important; }
+        [data-theme*="light"] .text-slate-400 { color: #64748b !important; }
+        [data-theme*="light"] .bg-slate-800\/50 { background-color: rgba(0,0,0,0.05) !important; border-color: #cbd5e1 !important; color: var(--text-main) !important; }
+        [data-theme*="light"] .glass-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+
         .glass-card {
             background-color: var(--color-cardbg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--color-cardborder);
         }
-        /* Clean scrollbar */
+        
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
