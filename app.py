@@ -1,19 +1,25 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
 import os
 
 app = Flask(__name__)
 app.secret_key = 'nrega_vibe_secret_key' 
 
-# --- FIX: Database ko 'instance' folder me save karna taaki delete na ho ---
-os.makedirs('instance', exist_ok=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/nrega_bookmarks.db'
+# --- SET YOUR ADMIN PIN HERE ---
+ADMIN_PIN = '72528'
+
+# --- FIX: Absolute Path for Database ---
+basedir = os.path.abspath(os.path.dirname(__file__))
+instance_path = os.path.join(basedir, 'instance')
+os.makedirs(instance_path, exist_ok=True)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(instance_path, 'nrega_bookmarks.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
 # --- DATABASE MODELS ---
-
 class District(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -49,7 +55,6 @@ class Link(db.Model):
     is_dynamic = db.Column(db.Boolean, default=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
 
-# Naya model Setting save karne ke liye (Jaise ki Greeting Message)
 class Setting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(50), unique=True, nullable=False)
@@ -58,7 +63,21 @@ class Setting(db.Model):
 with app.app_context():
     db.create_all()
 
-# --- ROUTES ---
+# --- ADMIN DECORATOR ---
+# Ye function check karega ki user logged in hai ya nahi
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# --- PUBLIC ROUTES ---
+@app.route('/ads.txt')
+def ads_txt():
+    ad_code = "google.com, pub-7555042175718049, DIRECT, f08c47fec0942fa0"
+    return ad_code, 200, {'Content-Type': 'text/plain'}
 
 @app.route('/')
 def index():
@@ -67,7 +86,6 @@ def index():
     bookmarks = [c for c in categories if not c.is_application]
     districts = District.query.order_by(District.name).all()
     
-    # Custom greeting fetch karna
     greeting_setting = Setting.query.filter_by(key='greeting_message').first()
     custom_greeting = greeting_setting.value if greeting_setting and greeting_setting.value else ""
     
@@ -78,96 +96,6 @@ def get_blocks(district_id):
     blocks = Block.query.filter_by(district_id=district_id).order_by(Block.name).all()
     block_list = [{'id': b.id, 'name': b.name, 'nrega_code': b.nrega_code} for b in blocks]
     return jsonify(block_list)
-
-# --- ADMIN ROUTES ---
-
-@app.route('/admin')
-def admin():
-    categories = Category.query.order_by(Category.sort_order).all()
-    links = Link.query.all()
-    bookmark_requests = BookmarkRequest.query.all() 
-    
-    greeting_setting = Setting.query.filter_by(key='greeting_message').first()
-    custom_greeting = greeting_setting.value if greeting_setting else ""
-    
-    return render_template('admin.html', categories=categories, links=links, requests=bookmark_requests, custom_greeting=custom_greeting)
-
-@app.route('/admin/update_greeting', methods=['POST'])
-def update_greeting():
-    message = request.form.get('greeting_message')
-    setting = Setting.query.filter_by(key='greeting_message').first()
-    if not setting:
-        setting = Setting(key='greeting_message', value=message)
-        db.session.add(setting)
-    else:
-        setting.value = message
-    db.session.commit()
-    return redirect(url_for('admin'))
-
-@app.route('/admin/add_category', methods=['POST'])
-def add_category():
-    name = request.form.get('name')
-    is_app = request.form.get('is_application') == 'on'
-    sort_order = request.form.get('sort_order', 0, type=int)
-    
-    if name:
-        new_cat = Category(name=name, is_application=is_app, sort_order=sort_order)
-        db.session.add(new_cat)
-        db.session.commit()
-    return redirect(url_for('admin'))
-
-@app.route('/admin/delete_category/<int:id>')
-def delete_category(id):
-    cat = Category.query.get(id)
-    if cat:
-        Link.query.filter_by(category_id=id).delete()
-        db.session.delete(cat)
-        db.session.commit()
-    return redirect(url_for('admin'))
-
-@app.route('/admin/add_link', methods=['POST'])
-def add_link():
-    title = request.form.get('title')
-    url = request.form.get('url')
-    icon = request.form.get('icon_class')
-    category_id = request.form.get('category_id')
-    is_dynamic = request.form.get('is_dynamic') == 'on'
-    
-    if title and url and category_id:
-        new_link = Link(title=title, url=url, icon_class=icon, category_id=category_id, is_dynamic=is_dynamic)
-        db.session.add(new_link)
-        db.session.commit()
-    return redirect(url_for('admin'))
-
-# --- EDIT LINK ROUTES ---
-
-@app.route('/admin/edit_link/<int:id>')
-def edit_link(id):
-    link = Link.query.get_or_404(id)
-    categories = Category.query.order_by(Category.sort_order).all()
-    return render_template('edit_link.html', link=link, categories=categories)
-
-@app.route('/admin/update_link/<int:id>', methods=['POST'])
-def update_link(id):
-    link = Link.query.get_or_404(id)
-    link.title = request.form.get('title')
-    link.url = request.form.get('url')
-    link.icon_class = request.form.get('icon_class')
-    link.category_id = request.form.get('category_id')
-    link.is_dynamic = request.form.get('is_dynamic') == 'on'
-    
-    db.session.commit()
-    return redirect(url_for('admin'))
-
-@app.route('/admin/delete_link/<int:id>')
-def delete_link(id):
-    link = Link.query.get(id)
-    if link:
-        db.session.delete(link)
-        db.session.commit()
-    return redirect(url_for('admin'))
-
-# --- SUGGESTION / REQUEST ROUTES ---
 
 @app.route('/submit_request', methods=['POST'])
 def submit_request():
@@ -181,7 +109,118 @@ def submit_request():
         db.session.commit()
     return jsonify({"status": "success"})
 
+# --- LOGIN / LOGOUT ROUTES ---
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form.get('pin') == ADMIN_PIN:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin'))
+        else:
+            error = "Incorrect PIN. Please try again."
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('index'))
+
+# --- PROTECTED ADMIN ROUTES ---
+@app.route('/admin')
+@admin_required
+def admin():
+    categories = Category.query.order_by(Category.sort_order).all()
+    links = Link.query.all()
+    bookmark_requests = BookmarkRequest.query.all() 
+    
+    greeting_setting = Setting.query.filter_by(key='greeting_message').first()
+    custom_greeting = greeting_setting.value if greeting_setting else ""
+    
+    return render_template('admin.html', categories=categories, links=links, requests=bookmark_requests, custom_greeting=custom_greeting)
+
+@app.route('/admin/update_greeting', methods=['POST'])
+@admin_required
+def update_greeting():
+    message = request.form.get('greeting_message')
+    setting = Setting.query.filter_by(key='greeting_message').first()
+    if not setting:
+        setting = Setting(key='greeting_message', value=message)
+        db.session.add(setting)
+    else:
+        setting.value = message
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/add_category', methods=['POST'])
+@admin_required
+def add_category():
+    name = request.form.get('name')
+    is_app = request.form.get('is_application') == 'on'
+    sort_order = request.form.get('sort_order', 0, type=int)
+    
+    if name:
+        new_cat = Category(name=name, is_application=is_app, sort_order=sort_order)
+        db.session.add(new_cat)
+        db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete_category/<int:id>')
+@admin_required
+def delete_category(id):
+    cat = Category.query.get(id)
+    if cat:
+        Link.query.filter_by(category_id=id).delete()
+        db.session.delete(cat)
+        db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/add_link', methods=['POST'])
+@admin_required
+def add_link():
+    title = request.form.get('title')
+    url = request.form.get('url')
+    icon = request.form.get('icon_class')
+    category_id = request.form.get('category_id')
+    is_dynamic = request.form.get('is_dynamic') == 'on'
+    
+    if title and url and category_id:
+        new_link = Link(title=title, url=url, icon_class=icon, category_id=category_id, is_dynamic=is_dynamic)
+        db.session.add(new_link)
+        db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/edit_link/<int:id>')
+@admin_required
+def edit_link(id):
+    link = Link.query.get_or_404(id)
+    categories = Category.query.order_by(Category.sort_order).all()
+    return render_template('edit_link.html', link=link, categories=categories)
+
+@app.route('/admin/update_link/<int:id>', methods=['POST'])
+@admin_required
+def update_link(id):
+    link = Link.query.get_or_404(id)
+    link.title = request.form.get('title')
+    link.url = request.form.get('url')
+    link.icon_class = request.form.get('icon_class')
+    link.category_id = request.form.get('category_id')
+    link.is_dynamic = request.form.get('is_dynamic') == 'on'
+    
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete_link/<int:id>')
+@admin_required
+def delete_link(id):
+    link = Link.query.get(id)
+    if link:
+        db.session.delete(link)
+        db.session.commit()
+    return redirect(url_for('admin'))
+
 @app.route('/admin/approve_request/<int:req_id>', methods=['POST'])
+@admin_required
 def approve_request(req_id):
     req = BookmarkRequest.query.get(req_id)
     if req:
@@ -193,19 +232,13 @@ def approve_request(req_id):
     return redirect(url_for('admin'))
 
 @app.route('/admin/delete_request/<int:req_id>')
+@admin_required
 def delete_request(req_id):
     req = BookmarkRequest.query.get(req_id)
     if req:
         db.session.delete(req)
         db.session.commit()
     return redirect(url_for('admin'))
-
-# --- ADSENSE ROUTE ---
-@app.route('/ads.txt')
-def ads_txt():
-    # Apni publisher ID yahan update karein
-    ad_code = "google.com, pub-7555042175718049, DIRECT, f08c47fec0942fa0"
-    return ad_code, 200, {'Content-Type': 'text/plain'}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5000)
