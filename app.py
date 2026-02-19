@@ -4,7 +4,10 @@ import os
 
 app = Flask(__name__)
 app.secret_key = 'nrega_vibe_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nrega_bookmarks.db'
+
+# --- FIX: Database ko 'instance' folder me save karna taaki delete na ho ---
+os.makedirs('instance', exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/nrega_bookmarks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -196,6 +199,13 @@ def delete_request(req_id):
         db.session.delete(req)
         db.session.commit()
     return redirect(url_for('admin'))
+
+# --- ADSENSE ROUTE ---
+@app.route('/ads.txt')
+def ads_txt():
+    # Apni publisher ID yahan update karein
+    ad_code = "google.com, pub-7555042175718049, DIRECT, f08c47fec0942fa0"
+    return ad_code, 200, {'Content-Type': 'text/plain'}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5000)

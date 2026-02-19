@@ -6,7 +6,6 @@ services:
     container_name: nrega_bookmarks_app
     restart: unless-stopped
     ports:
-      - "6000:5000"
+      - "6006:5000"  # Yahan 6000 ko 6001 kar diya hai
     volumes:
-      # Database file ko container ke bahar safe rakhne ke liye
       - ./instance:/app/instance

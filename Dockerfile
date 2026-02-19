@@ -14,5 +14,5 @@ COPY . .
 # Flask default port expose karo
 EXPOSE 5000
 
-# App run karne ki command
-CMD ["python", "app.py"]
+# App ko production server (Gunicorn) ke through run karo
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
