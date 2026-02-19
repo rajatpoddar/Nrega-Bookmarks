@@ -1,0 +1,15 @@
+# Virtual Environment
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Database
+instance/
+*.db
+nrega_bookmarks.db
+
+# OS Files (Kyunki tum Mac use kar rahe ho)
+.DS_Store

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-lock text-nregagreen"></i> Admin Control Panel
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Manage your bookmarks, categories, and dynamic URLs</p>
+        </div>
+        <a href="/" class="glass-card px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/10 transition">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <div class="glass-card p-6 rounded-2xl border border-white/5">
+            <h2 class="text-lg font-semibold text-nregagreen mb-4 border-b border-white/5 pb-2">Add New Category</h2>
+            <form action="/admin/add_category" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Category Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Muster Roll" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Sort Order (Column Position)</label>
+                    <input type="number" name="sort_order" value="0" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition">
+                    <p class="text-xs text-slate-500 mt-1">Lower number appears first (e.g. 1, 2, 3...)</p>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <input type="checkbox" name="is_application" id="is_app" class="w-4 h-4 accent-nregagreen bg-slate-800 border-slate-600 rounded">
+                    <label for="is_app" class="text-sm text-slate-300 cursor-pointer">Show as Top Application (Like NREGA BOT)</label>
+                </div>
+                <button type="submit" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg px-4 py-2 mt-2 transition">
+                    Save Category
+                </button>
+            </form>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border border-white/5">
+            <h2 class="text-lg font-semibold text-nregagreen mb-4 border-b border-white/5 pb-2">Add New Bookmark Link</h2>
+            <form action="/admin/add_link" method="POST" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Link Title</label>
+                        <input type="text" name="title" required placeholder="e.g. Demand Form" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Icon Class</label>
+                        <input type="text" name="icon_class" placeholder="mdi mdi-file" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition">
+                        <p class="text-xs text-slate-500 mt-1">FontAwesome or MDI classes</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">URL or Template</label>
+                    <input type="text" name="url" required placeholder="https://... or use [DIST_CODE]" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Select Category</label>
+                    <select name="category_id" required class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-nregagreen transition">
+                        <option value="">-- Choose Category --</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }} {% if cat.is_application %}(App){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2 mt-2 bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/20">
+                    <input type="checkbox" name="is_dynamic" id="is_dynamic" class="w-4 h-4 accent-yellow-500 bg-slate-800 border-slate-600 rounded">
+                    <label for="is_dynamic" class="text-sm text-yellow-500/90 cursor-pointer font-medium">This is a Dynamic Link (Updates per District/Block)</label>
+                </div>
+
+                <button type="submit" class="w-full bg-nregagreen hover:bg-emerald-600 text-white font-medium rounded-lg px-4 py-2.5 mt-2 transition shadow-lg shadow-nregagreen/20">
+                    Add Link
+                </button>
+            </form>
+        </div>
+        
+    </div>
+
+    {% if requests %}
+    <div class="mt-8 glass-card rounded-2xl p-6 border border-yellow-500/30 bg-yellow-500/5 shadow-lg shadow-yellow-500/5">
+        <h2 class="text-lg font-bold text-yellow-400 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-bell"></i> Pending Bookmark Requests ({{ requests|length }})
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+                <thead class="text-xs text-slate-400 uppercase bg-slate-800/50 border-b border-white/10">
+                    <tr>
+                        <th class="px-4 py-3">Suggested Title</th>
+                        <th class="px-4 py-3">URL</th>
+                        <th class="px-4 py-3">Suggested Category</th>
+                        <th class="px-4 py-3">Action (Approve/Reject)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                        <td class="px-4 py-3 font-medium text-white">{{ req.title }}</td>
+                        <td class="px-4 py-3 font-mono text-xs truncate max-w-[200px]">
+                            <a href="{{ req.url }}" target="_blank" class="text-blue-400 hover:underline">{{ req.url }}</a>
+                        </td>
+                        <td class="px-4 py-3 text-yellow-300">{{ req.suggested_category }}</td>
+                        <td class="px-4 py-3">
+                            <form action="/admin/approve_request/{{ req.id }}" method="POST" class="flex items-center gap-2">
+                                <select name="category_id" required class="bg-slate-800/50 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-nregagreen">
+                                    <option value="">-- Assign To --</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="bg-nregagreen/20 text-nregagreen hover:bg-nregagreen hover:text-white px-3 py-1.5 rounded transition text-xs font-semibold">Approve</button>
+                                <a href="/admin/delete_request/{{ req.id }}" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded transition text-xs font-semibold" onclick="return confirm('Reject this request?');">Reject</a>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        
+        <div class="glass-card rounded-2xl p-6 border border-white/5">
+            <h2 class="text-lg font-semibold text-white mb-4">Manage Categories</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="text-xs text-slate-400 uppercase bg-slate-800/50 border-b border-white/10">
+                        <tr>
+                            <th class="px-4 py-3">Order</th>
+                            <th class="px-4 py-3">Name</th>
+                            <th class="px-4 py-3">Type</th>
+                            <th class="px-4 py-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="px-4 py-3 font-mono">{{ cat.sort_order }}</td>
+                            <td class="px-4 py-3 font-medium text-white">{{ cat.name }}</td>
+                            <td class="px-4 py-3">{{ 'App' if cat.is_application else 'Bookmark' }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="/admin/delete_category/{{ cat.id }}" onclick="return confirm('WARNING: This will delete the category AND all links inside it! Are you sure?');" class="text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition text-xs">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 border border-white/5">
+            <h2 class="text-lg font-semibold text-white mb-4">Current Links</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="text-xs text-slate-400 uppercase bg-slate-800/50 border-b border-white/10">
+                        <tr>
+                            <th class="px-4 py-3">Title</th>
+                            <th class="px-4 py-3">Category</th>
+                            <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for link in links %}
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="px-4 py-3 font-medium text-white flex items-center gap-2">
+                                <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-link' }} text-slate-500"></i> {{ link.title }}
+                            </td>
+                            <td class="px-4 py-3">{{ link.category.name }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="/admin/edit_link/{{ link.id }}" class="text-blue-400 hover:text-blue-300 bg-blue-500/10 px-3 py-1.5 rounded-lg transition text-xs mr-2">Edit</a>
+                                
+                                <a href="/admin/delete_link/{{ link.id }}" onclick="return confirm('Are you sure you want to delete this link?');" class="text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-lg transition text-xs">Delete</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="px-4 py-8 text-center text-slate-500">No links added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

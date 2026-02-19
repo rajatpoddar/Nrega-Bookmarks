@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
+        
+        <div class="hidden lg:block lg:col-span-2">
+            <div class="sticky top-8 glass-card rounded-xl h-[600px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50">
+                Left Ad Space<br>(160x600)
+            </div>
+        </div>
+
+        <div class="lg:col-span-8 flex flex-col gap-6">
+            
+            <div class="block lg:hidden glass-card rounded-xl h-[100px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50">
+                Mobile Banner Ad
+            </div>
+
+            <div class="flex justify-between items-start border-b border-white/10 pb-5">
+                <div class="flex flex-col gap-1">
+                    <p class="text-nregagreen text-[10px] font-bold tracking-widest uppercase" id="current-date">Loading date...</p>
+                    <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight" id="greeting-text">Good day!</h1>
+                    
+                    <div class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 mt-2 rounded-full bg-nregagreen/10 border border-nregagreen/20 text-nregagreen w-fit">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span id="display-district">Setup Pending</span>
+                        <span class="opacity-50">/</span>
+                        <span id="display-block" class="capitalize">Setup Pending</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 mt-2">
+                    <button onclick="toggleModal('suggestModal')" class="w-11 h-11 rounded-full glass-card hover:bg-yellow-500/20 hover:text-yellow-400 transition flex items-center justify-center text-slate-300" title="Suggest a Bookmark">
+                        <i class="fa-solid fa-lightbulb text-lg"></i>
+                    </button>
+                    
+                    <button onclick="toggleModal('settingsModal')" class="w-11 h-11 rounded-full glass-card hover:bg-white/10 transition flex items-center justify-center text-slate-300 hover:text-white" title="Settings">
+                        <i class="fa-solid fa-gear text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Applications</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for app_cat in apps %}
+                        {% for link in app_cat.links %}
+                        <a href="{{ link.url if not link.is_dynamic else '#' }}" target="_blank"
+                           {% if link.is_dynamic %}data-template="{{ link.url }}"{% endif %}
+                           class="glass-card rounded-xl p-4 flex items-center gap-3 hover:bg-white/10 transition group">
+                            <div class="w-10 h-10 rounded-lg bg-nregagreen/20 text-nregagreen flex items-center justify-center group-hover:scale-110 transition shadow-lg shadow-nregagreen/10">
+                                <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-rocket' }} text-lg"></i>
+                            </div>
+                            <span class="font-semibold text-sm text-white">{{ link.title }}</span>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-slate-500 text-sm">No applications added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="block lg:hidden glass-card rounded-xl h-[100px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50 my-2">
+                In-feed Mobile Ad
+            </div>
+
+            <div>
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Bookmarks</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                    
+                    {% for cat in bookmarks %}
+                    <div class="glass-card p-5 rounded-xl">
+                        <h3 class="text-nregagreen font-semibold text-xs uppercase tracking-wider mb-4 border-b border-nregagreen/20 pb-2">{{ cat.name }}</h3>
+                        <ul class="space-y-3">
+                            {% for link in cat.links %}
+                            <li>
+                                <a href="{{ link.url if not link.is_dynamic else '#' }}" target="_blank"
+                                   {% if link.is_dynamic %}data-template="{{ link.url }}"{% endif %}
+                                   class="text-sm text-slate-300 hover:text-white flex items-center gap-3 group">
+                                    <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-link' }} text-slate-500 w-4 group-hover:text-nregagreen transition"></i> {{ link.title }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="col-span-full glass-card p-5 rounded-xl text-center text-slate-500">
+                        No bookmark categories added yet. Add them from the Admin Panel.
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="hidden lg:block lg:col-span-2">
+            <div class="sticky top-8 glass-card rounded-xl h-[600px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50">
+                Right Ad Space<br>(160x600)
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="settingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+    <div class="glass-card w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 relative">
+        <button onclick="toggleModal('settingsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-nregagreen"></i> Settings
+        </h2>
+
+        <div class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Choose Theme</label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="setThemePreview('theme-slate')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-[#10b981] hover:scale-110 transition theme-btn" data-theme-val="theme-slate" title="Default Slate"></button>
+                    <button type="button" onclick="setThemePreview('theme-nrega')" class="w-8 h-8 rounded-full bg-[#1a1f1b] border-2 border-[#50fbc2] hover:scale-110 transition theme-btn" data-theme-val="theme-nrega" title="NREGA Classic"></button>
+                    <button type="button" onclick="setThemePreview('theme-midnight')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-[#3b82f6] hover:scale-110 transition theme-btn" data-theme-val="theme-midnight" title="Midnight Blue"></button>
+                    <button type="button" onclick="setThemePreview('theme-coffee')" class="w-8 h-8 rounded-full bg-[#291e18] border-2 border-[#f97316] hover:scale-110 transition theme-btn" data-theme-val="theme-coffee" title="Dark Coffee"></button>
+                    <button type="button" onclick="setThemePreview('theme-purple')" class="w-8 h-8 rounded-full bg-[#1e1b4b] border-2 border-[#a855f7] hover:scale-110 transition theme-btn" data-theme-val="theme-purple" title="Sunset Purple"></button>
+                </div>
+                <input type="hidden" id="selectedTheme" value="theme-slate">
+            </div>
+
+            <hr class="border-white/10">
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Select District</label>
+                <select id="districtSelect" onchange="fetchBlocks(this)" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-nregagreen transition appearance-none">
+                    <option value="" data-code="" data-state="" data-scode="" data-id="">-- Select District --</option>
+                    {% for dist in districts %}
+                    <option value="{{ dist.name | lower }}" data-id="{{ dist.id }}" data-code="{{ dist.nrega_code }}" data-state="{{ dist.state_name }}" data-scode="{{ dist.state_code }}">
+                        {{ dist.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Select Block</label>
+                <select id="blockSelect" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-nregagreen transition appearance-none">
+                    <option value="" data-code="">-- Select District First --</option>
+                </select>
+            </div>
+
+            <button onclick="saveSettings()" class="w-full bg-nregagreen hover:bg-emerald-600 text-white font-semibold rounded-lg px-4 py-3 mt-4 transition shadow-lg shadow-nregagreen/20">
+                Save & Apply
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="suggestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+    <div class="glass-card w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 relative">
+        <button onclick="toggleModal('suggestModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-yellow-400"></i> Suggest a Link
+        </h2>
+
+        <form id="suggestForm" onsubmit="submitSuggestion(event)" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Link Title</label>
+                <input type="text" name="title" required placeholder="e.g. New MGNREGA Report" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-400 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">URL / Web Address</label>
+                <input type="url" name="url" required placeholder="https://..." class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-400 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Suggested Category</label>
+                <input type="text" name="category" required placeholder="e.g. Reports, Block, etc." class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-400 transition">
+            </div>
+            
+            <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold rounded-lg px-4 py-3 mt-4 transition shadow-lg shadow-yellow-500/20">
+                Send Request to Admin
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    // --- UI LOGIC ---
+    function setDateTime() {
+        const now = new Date();
+        const hour = now.getHours();
+        let greeting = "Good evening!";
+        if(hour < 12) greeting = "Good morning!";
+        else if(hour < 17) greeting = "Good afternoon!";
+        document.getElementById('greeting-text').textContent = greeting;
+        
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = now.toLocaleDateString('en-IN', options).toUpperCase();
+    }
+
+    // --- THEME LOGIC ---
+    function setThemePreview(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        document.getElementById('selectedTheme').value = themeName;
+        
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            if(btn.dataset.themeVal === themeName) {
+                btn.classList.add('ring-2', 'ring-offset-2', 'ring-offset-darkbg', 'ring-white');
+            } else {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-offset-darkbg', 'ring-white');
+            }
+        });
+    }
+
+    // Ye function request ko bina page reload kiye backend me bhej dega
+    async function submitSuggestion(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        try {
+            await fetch('/submit_request', { method: 'POST', body: formData });
+            form.reset();
+            toggleModal('suggestModal');
+            alert('🎉 Thank you! Your bookmark request has been sent to Rajat for approval.');
+        } catch (error) {
+            alert('Oops! Something went wrong. Please try again.');
+        }
+    }
+
+    // --- FUNCTIONAL LOGIC ---
+    function toggleModal(modalID) {
+        document.getElementById(modalID).classList.toggle('hidden');
+    }
+
+    async function fetchBlocks(districtElement, savedBlockValue = null) {
+        const blockSelect = document.getElementById('blockSelect');
+        const selectedOption = districtElement.options[districtElement.selectedIndex];
+        const districtId = selectedOption.getAttribute('data-id');
+
+        if (!districtId) {
+            blockSelect.innerHTML = '<option value="" data-code="">-- Select District First --</option>';
+            return;
+        }
+
+        blockSelect.innerHTML = '<option value="" data-code="">-- Loading Blocks... --</option>';
+
+        try {
+            const response = await fetch(`/get_blocks/${districtId}`);
+            const blocks = await response.json();
+            
+            blockSelect.innerHTML = '<option value="" data-code="">-- Select Block --</option>';
+            blocks.forEach(block => {
+                const option = document.createElement('option');
+                option.value = block.name.toLowerCase();
+                option.textContent = block.name;
+                option.setAttribute('data-code', block.nrega_code);
+                blockSelect.appendChild(option);
+            });
+
+            if (savedBlockValue) {
+                blockSelect.value = savedBlockValue;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            blockSelect.innerHTML = '<option value="" data-code="">-- Error loading blocks --</option>';
+        }
+    }
+
+    function saveSettings() {
+        const distSelect = document.getElementById('districtSelect');
+        const blockSelect = document.getElementById('blockSelect');
+        
+        if(distSelect.value === "") return alert("Please select a District.");
+        if(blockSelect.value === "") return alert("Please select a Block.");
+
+        const distOption = distSelect.options[distSelect.selectedIndex];
+        const blockOption = blockSelect.options[blockSelect.selectedIndex];
+
+        // Save preferences
+        localStorage.setItem('userTheme', document.getElementById('selectedTheme').value);
+        localStorage.setItem('userDistrict', distSelect.value);
+        localStorage.setItem('userBlock', blockSelect.value);
+        localStorage.setItem('userDistrictText', distOption.text);
+        localStorage.setItem('userBlockText', blockOption.text);
+        localStorage.setItem('distCode', distOption.getAttribute('data-code'));
+        localStorage.setItem('blockCode', blockOption.getAttribute('data-code'));
+
+        updateDisplay();
+        processDynamicLinks();
+        toggleModal('settingsModal');
+    }
+
+    function updateDisplay() {
+        const savedDistrictText = localStorage.getItem('userDistrictText');
+        const savedBlockText = localStorage.getItem('userBlockText');
+        const savedTheme = localStorage.getItem('userTheme') || 'theme-slate';
+        
+        setThemePreview(savedTheme);
+
+        if(savedDistrictText && savedDistrictText !== "-- Select District --") {
+            document.getElementById('display-district').textContent = savedDistrictText;
+            document.getElementById('districtSelect').value = localStorage.getItem('userDistrict');
+            fetchBlocks(document.getElementById('districtSelect'), localStorage.getItem('userBlock'));
+        }
+        
+        if(savedBlockText && savedBlockText !== "-- Select District First --" && savedBlockText !== "-- Select Block --") {
+            document.getElementById('display-block').textContent = savedBlockText;
+        }
+    }
+
+    function processDynamicLinks() {
+        const distCode = localStorage.getItem('distCode') || "";
+        const distName = (localStorage.getItem('userDistrictText') || "").toUpperCase();
+        const blockCode = localStorage.getItem('blockCode') || "";
+        const blockName = (localStorage.getItem('userBlockText') || "").toUpperCase();
+
+        document.querySelectorAll('a[data-template]').forEach(link => {
+            let template = link.getAttribute('data-template');
+            let finalUrl = template
+                .replace(/\[DIST_CODE\]/g, distCode)
+                .replace(/\[DIST_NAME\]/g, distName)
+                .replace(/\[STATE_NAME\]/g, "JHARKHAND")
+                .replace(/\[STATE_CODE\]/g, "34")
+                .replace(/\[BLOCK_CODE\]/g, blockCode)
+                .replace(/\[BLOCK_NAME\]/g, blockName)
+                .replace(/\[FIN_YEAR\]/g, "2025-2026");
+
+            if(distCode && blockCode) {
+                link.setAttribute('href', finalUrl);
+            } else {
+                link.setAttribute('href', '#');
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    toggleModal('settingsModal');
+                };
+            }
+        });
+    }
+
+    window.onload = function() {
+        setDateTime();
+        updateDisplay();
+        setTimeout(processDynamicLinks, 500);
+
+        if(!localStorage.getItem('userDistrict')) {
+            toggleModal('settingsModal');
+        }
+    };
+</script>
+{% endblock %}

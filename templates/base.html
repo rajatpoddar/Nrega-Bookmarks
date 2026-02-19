@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NREGA Bookmark Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: 'var(--color-bg)',
+                        cardbg: 'var(--color-cardbg)',
+                        cardborder: 'var(--color-cardborder)',
+                        nregagreen: 'var(--color-accent)'
+                    }
+                }
+            }
+        }
+
+        // Page load hone se pehle turant saved theme apply karna (Flicker rokne ke liye)
+        const savedTheme = localStorage.getItem('userTheme') || 'theme-slate';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <style>
+        /* THEME VARIABLES */
+        /* 1. Default Slate */
+        :root, [data-theme="theme-slate"] {
+            --color-bg: #0f172a; 
+            --color-cardbg: rgba(255, 255, 255, 0.03);
+            --color-cardborder: rgba(255, 255, 255, 0.05);
+            --color-accent: #10b981; /* Emerald */
+        }
+        /* 2. Nrega Classic (Screenshot inspired) */
+        [data-theme="theme-nrega"] {
+            --color-bg: #1a1f1b;
+            --color-cardbg: rgba(255, 255, 255, 0.02);
+            --color-cardborder: rgba(80, 251, 194, 0.1);
+            --color-accent: #50fbc2; /* Neon Mint */
+        }
+        /* 3. Midnight Blue */
+        [data-theme="theme-midnight"] {
+            --color-bg: #020617;
+            --color-cardbg: rgba(59, 130, 246, 0.05);
+            --color-cardborder: rgba(59, 130, 246, 0.1);
+            --color-accent: #3b82f6; /* Blue */
+        }
+        /* 4. Dark Coffee */
+        [data-theme="theme-coffee"] {
+            --color-bg: #291e18;
+            --color-cardbg: rgba(255, 255, 255, 0.02);
+            --color-cardborder: rgba(249, 115, 22, 0.1);
+            --color-accent: #f97316; /* Orange */
+        }
+        /* 5. Sunset Purple */
+        [data-theme="theme-purple"] {
+            --color-bg: #1e1b4b;
+            --color-cardbg: rgba(168, 85, 247, 0.05);
+            --color-cardborder: rgba(168, 85, 247, 0.15);
+            --color-accent: #a855f7; /* Purple */
+        }
+
+        /* Glassmorphism utilities */
+        .glass-card {
+            background-color: var(--color-cardbg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-cardborder);
+        }
+        /* Clean scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        body { transition: background-color 0.4s ease; }
+    </style>
+</head>
+<body class="bg-darkbg text-slate-300 font-sans min-h-screen selection:bg-nregagreen selection:text-white">
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
