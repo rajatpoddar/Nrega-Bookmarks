@@ -56,11 +56,11 @@
                         {% for link in app_cat.links %}
                         <a href="{{ link.url if not link.is_dynamic else '#' }}" target="_blank"
                            {% if link.is_dynamic %}data-template="{{ link.url }}"{% endif %}
-                           class="glass-card rounded-xl p-4 flex items-center gap-3 hover:bg-white/10 transition group">
-                            <div class="w-10 h-10 rounded-lg bg-nregagreen/20 text-nregagreen flex items-center justify-center group-hover:scale-110 transition shadow-lg shadow-nregagreen/10 min-w-[40px]">
+                           class="glass-card rounded-xl p-4 flex items-center gap-3 hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-nregagreen/20 group border border-transparent hover:border-nregagreen/30">
+                            <div class="w-10 h-10 rounded-lg bg-nregagreen/20 text-nregagreen flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-nregagreen/10 min-w-[40px]">
                                 <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-rocket' }} text-lg"></i>
                             </div>
-                            <span class="font-semibold text-sm text-white break-words">{{ link.title }}</span>
+                            <span class="font-semibold text-sm text-white break-words group-hover:text-nregagreen transition-colors">{{ link.title }}</span>
                         </a>
                         {% endfor %}
                     {% else %}
@@ -78,17 +78,20 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                     
                     {% for cat in bookmarks %}
-                    <div class="glass-card p-5 rounded-xl border-t-[3px] border-t-nregagreen">
-                        <h3 class="text-nregagreen font-extrabold text-lg md:text-xl text-center uppercase tracking-widest mb-5 border-b border-white/10 pb-3 bg-nregagreen/5 rounded-t-lg py-2">
+                    <div class="glass-card p-5 rounded-xl border-t-[3px] border-t-nregagreen transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-nregagreen/20 hover:border-white/10 group/card">
+                        
+                        <h3 class="text-nregagreen font-extrabold text-lg md:text-xl text-center uppercase tracking-widest mb-5 border-b border-white/10 pb-3 bg-nregagreen/5 rounded-t-lg py-2 transition-colors duration-300 group-hover/card:bg-nregagreen/10">
                             {{ cat.name }}
                         </h3>
+                        
                         <ul class="space-y-3">
                             {% for link in cat.links %}
                             <li>
                                 <a href="{{ link.url if not link.is_dynamic else '#' }}" target="_blank"
                                    {% if link.is_dynamic %}data-template="{{ link.url }}"{% endif %}
-                                   class="text-sm text-slate-300 hover:text-white flex items-center gap-3 group">
-                                    <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-link' }} text-slate-500 w-4 group-hover:text-nregagreen transition"></i> {{ link.title }}
+                                   class="text-sm text-slate-300 flex items-center gap-3 group transition-all duration-300 hover:translate-x-1.5">
+                                    <i class="{{ link.icon_class if link.icon_class else 'fa-solid fa-link' }} text-slate-500 w-4 group-hover:text-nregagreen transition-colors duration-300"></i> 
+                                    <span class="group-hover:text-nregagreen transition-colors duration-300">{{ link.title }}</span>
                                 </a>
                             </li>
                             {% endfor %}

@@ -42,13 +42,15 @@
     </script>
 
     <style>
-        /* 1. Default Slate */
+        /* THEME VARIABLES */
+        /* 1. Default Slate - Added Subtle Dot Texture */
         :root, [data-theme="theme-slate"] {
             --color-bg: #0f172a; 
             --color-cardbg: rgba(255, 255, 255, 0.03);
             --color-cardborder: rgba(255, 255, 255, 0.05);
             --color-accent: #10b981; 
             --text-main: #ffffff;
+            --bg-pattern: radial-gradient(rgba(255, 255, 255, 0.03) 1.5px, transparent 1.5px);
         }
         /* 2. Nrega Classic */
         [data-theme="theme-nrega"] {
@@ -57,14 +59,17 @@
             --color-cardborder: rgba(80, 251, 194, 0.1);
             --color-accent: #50fbc2;
             --text-main: #ffffff;
+            --bg-pattern: none;
         }
-        /* 3. Midnight Blue */
+        /* 3. Midnight Blue - Added Modern Grid Texture */
         [data-theme="theme-midnight"] {
             --color-bg: #020617;
             --color-cardbg: rgba(59, 130, 246, 0.05);
             --color-cardborder: rgba(59, 130, 246, 0.1);
             --color-accent: #3b82f6; 
             --text-main: #ffffff;
+            --bg-pattern: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
         }
         /* 4. Dark Coffee */
         [data-theme="theme-coffee"] {
@@ -73,6 +78,7 @@
             --color-cardborder: rgba(249, 115, 22, 0.1);
             --color-accent: #f97316;
             --text-main: #ffffff;
+            --bg-pattern: none;
         }
         /* 5. Sunset Purple */
         [data-theme="theme-purple"] {
@@ -81,6 +87,7 @@
             --color-cardborder: rgba(168, 85, 247, 0.15);
             --color-accent: #a855f7; 
             --text-main: #ffffff;
+            --bg-pattern: none;
         }
         /* 6. Light Day */
         [data-theme="theme-light-day"] {
@@ -89,6 +96,7 @@
             --color-cardborder: #e2e8f0;
             --color-accent: #059669; 
             --text-main: #0f172a;
+            --bg-pattern: radial-gradient(rgba(15, 23, 42, 0.06) 1.5px, transparent 1.5px);
         }
         /* 7. Light Warm */
         [data-theme="theme-light-warm"] {
@@ -97,6 +105,7 @@
             --color-cardborder: #fde68a;
             --color-accent: #d97706; 
             --text-main: #451a03;
+            --bg-pattern: radial-gradient(rgba(69, 26, 3, 0.06) 1.5px, transparent 1.5px);
         }
 
         /* Smart Override for Light Themes */
@@ -116,7 +125,11 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
-        body { transition: background-color 0.4s ease; }
+        body { 
+            transition: background-color 0.4s ease; 
+            background-image: var(--bg-pattern);
+            background-size: 24px 24px;
+        }
     </style>
 </head>
 <body class="bg-darkbg text-slate-300 font-sans min-h-screen selection:bg-nregagreen selection:text-white">
