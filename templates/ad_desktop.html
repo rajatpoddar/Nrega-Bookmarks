@@ -1,0 +1,75 @@
+<style>
+    /* Continuous Marquee Slider - No Hover Effects on Items */
+    .ad-slider-container {
+        flex-grow: 1;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        margin: 1rem 0;
+        -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    }
+    .ad-slider-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        animation: scroll-v 25s linear infinite;
+    }
+    .ad-slider-content:hover {
+        animation-play-state: paused;
+    }
+    @keyframes scroll-v {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-50%); }
+    }
+    .feat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0 0.5rem;
+    }
+</style>
+
+<a href="https://nregabot.com/" target="_blank" class="block w-full h-[600px] rounded-2xl relative overflow-hidden bg-slate-900 group shadow-2xl flex flex-col items-center pt-4 pb-5 px-3 border border-slate-700/50 hover:border-blue-500/50 transition-colors duration-300">
+    
+    <div class="absolute inset-0 bg-gradient-to-b from-blue-900/10 via-slate-900 to-slate-900 pointer-events-none"></div>
+
+    <div class="relative z-10 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-4 bg-slate-800/50 px-3 py-1 rounded-full">Sponsored</div>
+
+    <div class="relative w-20 h-20 rounded-full mb-3 z-10 shrink-0 shadow-[0_5px_20px_rgba(59,130,246,0.2)]">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="NREGA Bot" class="w-full h-full rounded-full object-cover">
+    </div>
+
+    <h3 class="relative z-10 text-white font-black text-[18px] text-center leading-tight mb-1 tracking-tight">NREGA BOT</h3>
+    <span class="relative z-10 text-[10px] font-bold text-blue-400 uppercase tracking-widest bg-blue-900/20 px-3 py-0.5 rounded-full border border-blue-500/20">v2.9.5 Premium</span>
+
+    <div class="ad-slider-container z-10">
+        <div class="ad-slider-content">
+            <div class="feat-item"><span class="text-sm shrink-0">⚡</span><span class="text-xs font-medium text-slate-300">Auto eKYC & ABPS</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">📄</span><span class="text-xs font-medium text-slate-300">MR Generator & Fill</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🎯</span><span class="text-xs font-medium text-slate-300">1-Click FTO Process</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">💸</span><span class="text-xs font-medium text-slate-300">Wagelist Automation</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">📊</span><span class="text-xs font-medium text-slate-300">Demand Automation</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">✅</span><span class="text-xs font-medium text-slate-300">Auto eMB Verify</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🛠️</span><span class="text-xs font-medium text-slate-300">Work Allocation</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">📝</span><span class="text-xs font-medium text-slate-300">Dynamic IF Editor</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🔢</span><span class="text-xs font-medium text-slate-300">Bulk Workcode Gen</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🆔</span><span class="text-xs font-medium text-slate-300">Jobcard Verification</span></div>
+            
+            <div class="feat-item"><span class="text-sm shrink-0">⚡</span><span class="text-xs font-medium text-slate-300">Auto eKYC & ABPS</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">📄</span><span class="text-xs font-medium text-slate-300">MR Generator & Fill</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🎯</span><span class="text-xs font-medium text-slate-300">1-Click FTO Process</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">💸</span><span class="text-xs font-medium text-slate-300">Wagelist Automation</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">📊</span><span class="text-xs font-medium text-slate-300">Demand Automation</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">✅</span><span class="text-xs font-medium text-slate-300">Auto eMB Verify</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🛠️</span><span class="text-xs font-medium text-slate-300">Work Allocation</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">📝</span><span class="text-xs font-medium text-slate-300">Dynamic IF Editor</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🔢</span><span class="text-xs font-medium text-slate-300">Bulk Workcode Gen</span></div>
+            <div class="feat-item"><span class="text-sm shrink-0">🆔</span><span class="text-xs font-medium text-slate-300">Jobcard Verification</span></div>
+        </div>
+    </div>
+
+    <div class="relative z-10 w-full bg-blue-600 !text-white text-xs font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(37,99,235,0.4)] transition-transform group-hover:scale-[1.03] mt-2 group-hover:bg-blue-500">
+        <i class="fa-solid fa-rocket"></i> GET STARTED
+    </div>
+</a>

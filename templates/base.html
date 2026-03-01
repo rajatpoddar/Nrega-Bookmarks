@@ -95,10 +95,18 @@
         [data-theme*="light"] .bg-slate-800\/50 { background-color: rgba(0,0,0,0.05) !important; border-color: #cbd5e1 !important; color: var(--text-main) !important; }
         [data-theme*="light"] .glass-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
 
+        /* Smooth scrolling enable karein */
+        html { scroll-behavior: smooth; }
+
         .glass-card {
             background-color: var(--color-cardbg);
-            backdrop-filter: blur(10px);
+            /* Blur intensity kam ki gayi hai aur hardware acceleration add kiya hai */
+            backdrop-filter: blur(4px); 
+            -webkit-backdrop-filter: blur(4px);
             border: 1px solid var(--color-cardborder);
+            /* GPU rendering force karne ke liye */
+            transform: translateZ(0);
+            will-change: transform, opacity;
         }
         
         ::-webkit-scrollbar { width: 6px; }
@@ -106,9 +114,11 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
         body { 
-            transition: background-color 0.4s ease; 
+            /* Transition background-color heavy ho sakta hai scroll pe, isliye ise static rakha gaya hai */
             background-image: var(--bg-pattern);
             background-size: 24px 24px;
+            /* Scroll lag kam karne ke liye background ko fixed paint karein */
+            background-attachment: fixed;
         }
     </style>
 </head>

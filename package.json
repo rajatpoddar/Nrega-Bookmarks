@@ -1,0 +1,23 @@
+{
+  "name": "bookmark",
+  "version": "1.0.0",
+  "description": "A powerful, dynamic, and centralized bookmarking dashboard tailored for NREGA (Mahatma Gandhi National Rural Employment Guarantee Act) workers, Program Officers (POs), and government officials.",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rajatpoddar/Nrega-Bookmarks.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rajatpoddar/Nrega-Bookmarks/issues"
+  },
+  "homepage": "https://github.com/rajatpoddar/Nrega-Bookmarks#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

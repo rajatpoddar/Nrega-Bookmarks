@@ -22,6 +22,12 @@ jharkhand_districts = [
 
 def scrape_and_seed():
     with app.app_context():
+        # --- FIX START: Skip scraping if data already exists ---
+        if District.query.count() >= 24:
+            print("✅ Districts and Blocks already exist in the database. Skipping scraping!")
+            return
+        # --- FIX END ---
+
         print("🚀 NREGA Web Scraper Started...")
         
         for dist_data in jharkhand_districts:

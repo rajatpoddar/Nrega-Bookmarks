@@ -6,15 +6,15 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
         
         <div class="hidden lg:block lg:col-span-2">
-            <div class="sticky top-8 glass-card rounded-xl h-[600px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50">
-                Left Ad Space<br>(160x600)
+            <div class="sticky top-8">
+                {% include 'ad_desktop.html' %}
             </div>
         </div>
 
         <div class="lg:col-span-8 flex flex-col gap-6">
             
-            <div class="block lg:hidden glass-card rounded-xl h-[100px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50">
-                Mobile Banner Ad
+            <div class="block lg:hidden">
+                {% include 'ad_mobile.html' %}
             </div>
 
             <div class="flex justify-between items-start border-b border-white/10 pb-5">
@@ -69,8 +69,8 @@
                 </div>
             </div>
 
-            <div class="block lg:hidden glass-card rounded-xl h-[100px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50 my-2">
-                In-feed Mobile Ad
+            <div class="block lg:hidden">
+                {% include 'ad_mobile.html' %}
             </div>
 
             <div class="mt-4 mb-2 relative">
@@ -85,7 +85,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                     
                     {% for cat in bookmarks %}
-                    <div class="glass-card p-5 rounded-xl border-t-[3px] border-t-nregagreen transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-nregagreen/20 hover:border-white/10 group/card">
+                    <div class="glass-card p-5 rounded-xl border-t-[3px] border-t-nregagreen transition-[transform,shadow] duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-nregagreen/20 hover:border-white/10 group/card">
                         
                         <h3 class="text-nregagreen font-extrabold text-lg md:text-xl text-center uppercase tracking-widest mb-5 border-b border-white/10 pb-3 bg-nregagreen/5 rounded-t-lg py-2 transition-colors duration-300 group-hover/card:bg-nregagreen/10">
                             {{ cat.name }}
@@ -116,8 +116,8 @@
         </div>
 
         <div class="hidden lg:block lg:col-span-2">
-            <div class="sticky top-8 glass-card rounded-xl h-[600px] flex items-center justify-center text-slate-500 text-sm border-dashed border-2 border-slate-700/50">
-                Right Ad Space<br>(160x600)
+            <div class="sticky top-8">
+                {% include 'ad_desktop.html' %}
             </div>
         </div>
 

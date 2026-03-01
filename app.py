@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import os
@@ -244,6 +244,14 @@ def delete_request(req_id):
         db.session.delete(req)
         db.session.commit()
     return redirect(url_for('admin'))
+
+@app.route('/admin/download_backup')
+@admin_required
+def download_backup():
+    db_path = os.path.join(instance_path, 'nrega_bookmarks.db')
+    if os.path.exists(db_path):
+        return send_file(db_path, as_attachment=True, download_name="nrega_bookmarks_backup.db")
+    return "Database file not found!", 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5000)

@@ -1,7 +1,7 @@
 # Stage 1: Build Tailwind CSS
 FROM node:18-alpine AS css-builder
 WORKDIR /app
-RUN npm install -g tailwindcss
+RUN npm install -g tailwindcss@3
 COPY tailwind.config.js .
 # Create directory structure and copy input
 RUN mkdir -p static/css

@@ -16,3 +16,7 @@ nrega_bookmarks.db
 
 # Environment Variables (Secrets)
 .env
+
+# Node & Tailwind
+node_modules/
+package-lock.json

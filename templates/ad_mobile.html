@@ -1,0 +1,93 @@
+<style>
+    /* Mobile 2-Line Marquee */
+    .mobile-slider-container {
+        overflow: hidden;
+        position: relative;
+        height: 32px; /* Holds exactly 2 lines of 16px */
+        width: 100%;
+        -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    }
+    .mobile-slider-content {
+        display: flex;
+        flex-direction: column;
+        /* Step-by-step scrolling for grouped items */
+        animation: scroll-mobile-2 15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes scroll-mobile-2 {
+        0%, 15% { transform: translateY(0); }
+        20%, 35% { transform: translateY(-32px); }
+        40%, 55% { transform: translateY(-64px); }
+        60%, 75% { transform: translateY(-96px); }
+        80%, 95% { transform: translateY(-128px); }
+        100% { transform: translateY(0); }
+    }
+    .m-feat-group {
+        height: 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .m-feat {
+        height: 16px;
+        display: flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 500;
+        color: #cbd5e1;
+        white-space: nowrap;
+    }
+</style>
+
+<a href="https://nregabot.com/" target="_blank" class="block w-full rounded-xl bg-slate-900 p-2.5 my-3 flex items-center justify-between gap-3 shadow-md relative overflow-hidden group border border-slate-700/50 hover:border-blue-500/50 transition-colors">
+    
+    <div class="absolute right-0 top-0 w-32 h-32 bg-blue-500/10 blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-all"></div>
+
+    <div class="flex items-center gap-3 relative z-10 w-full">
+        <div class="w-10 h-10 rounded-full shrink-0 shadow-sm">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="NREGA Bot" class="w-full h-full rounded-full object-cover">
+        </div>
+
+        <div class="flex flex-col flex-grow min-w-0 justify-center">
+            
+            <h3 class="text-white font-bold text-[14px] leading-tight truncate mb-0.5 mt-0.5">NREGA Bot <span class="text-blue-400 font-bold text-[9px] ml-1">v2.9.5</span></h3>
+            
+            <div class="mobile-slider-container">
+                <div class="mobile-slider-content">
+                    <div class="m-feat-group">
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">⚡</span> Auto eKYC & ABPS</div>
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">📄</span> MR Generator & Fill</div>
+                    </div>
+                    <div class="m-feat-group">
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">🎯</span> 1-Click FTO Process</div>
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">💸</span> Wagelist Automation</div>
+                    </div>
+                    <div class="m-feat-group">
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">📊</span> Demand Automation</div>
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">✅</span> Auto eMB Verify</div>
+                    </div>
+                    <div class="m-feat-group">
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">🛠️</span> Work Allocation</div>
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">📝</span> Dynamic IF Editor</div>
+                    </div>
+                    <div class="m-feat-group">
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">🔢</span> Bulk Workcode Gen</div>
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">🆔</span> Jobcard Verify</div>
+                    </div>
+                    <div class="m-feat-group">
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">⚡</span> Auto eKYC & ABPS</div>
+                        <div class="m-feat"><span class="mr-1.5 text-[10px]">📄</span> MR Generator & Fill</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center gap-1.5 shrink-0 pl-1">
+            <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest bg-slate-800/50 px-1.5 py-0.5 rounded-full">Sponsored</span>
+            
+            <div class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-md border border-slate-700 group-hover:border-transparent">
+                <i class="fa-solid fa-arrow-right -rotate-45 group-hover:rotate-0 transition-transform duration-300 text-[10px]"></i>
+            </div>
+        </div>
+    </div>
+</a>
