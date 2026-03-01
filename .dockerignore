@@ -22,3 +22,6 @@ instance/
 Dockerfile
 docker-compose.yml
 update.sh
+
+# Secrets
+.env

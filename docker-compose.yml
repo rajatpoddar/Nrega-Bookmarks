@@ -6,6 +6,8 @@ services:
     container_name: nrega_bookmarks_app
     restart: unless-stopped
     ports:
-      - "6006:5000"  # Yahan 6000 ko 6001 kar diya hai
+      - "6006:5000"
+    env_file:
+      - .env
     volumes:
       - ./instance:/app/instance

@@ -73,6 +73,13 @@
                 In-feed Mobile Ad
             </div>
 
+            <div class="mt-4 mb-2 relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass text-slate-500"></i>
+                </div>
+                <input type="text" id="bookmarkSearch" onkeyup="filterBookmarks()" class="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-nregagreen transition shadow-inner" placeholder="Search any application or bookmark link...">
+            </div>
+
             <div>
                 <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 mt-4">Bookmarks</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -163,6 +170,16 @@
                 </select>
             </div>
 
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Select Financial Year</label>
+                <select id="finYearSelect" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-nregagreen transition appearance-none">
+                    <option value="2026-2027">2026-2027</option>
+                    <option value="2025-2026">2025-2026</option>
+                    <option value="2024-2025">2024-2025</option>
+                    <option value="2023-2024">2023-2024</option>
+                </select>
+            </div>
+
             <button onclick="saveSettings()" class="w-full bg-nregagreen hover:bg-emerald-600 text-white font-semibold rounded-lg px-4 py-3 mt-4 transition shadow-lg shadow-nregagreen/20">
                 Save & Apply
             </button>
@@ -248,6 +265,29 @@
         }
     }
 
+    function filterBookmarks() {
+        const input = document.getElementById('bookmarkSearch').value.toLowerCase();
+        
+        document.querySelectorAll('#applicationsContainer a').forEach(app => {
+            const text = app.innerText.toLowerCase();
+            app.style.display = text.includes(input) ? '' : 'none';
+        });
+
+        document.querySelectorAll('.group\\/card').forEach(category => {
+            let hasVisibleLink = false;
+            category.querySelectorAll('li').forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(input)) {
+                    item.style.display = '';
+                    hasVisibleLink = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            category.style.display = hasVisibleLink ? '' : 'none';
+        });
+    }
+
     // --- THEME LOGIC ---
     function setThemePreview(themeName) {
         document.documentElement.setAttribute('data-theme', themeName);
@@ -318,6 +358,7 @@
     function saveSettings() {
         const distSelect = document.getElementById('districtSelect');
         const blockSelect = document.getElementById('blockSelect');
+        const finYearSelect = document.getElementById('finYearSelect');
         
         if(distSelect.value === "") return alert("Please select a District.");
         if(blockSelect.value === "") return alert("Please select a Block.");
@@ -328,6 +369,7 @@
         localStorage.setItem('userTheme', document.getElementById('selectedTheme').value);
         localStorage.setItem('userDistrict', distSelect.value);
         localStorage.setItem('userBlock', blockSelect.value);
+        localStorage.setItem('userFinYear', finYearSelect.value);
         localStorage.setItem('userDistrictText', distOption.text);
         localStorage.setItem('userBlockText', blockOption.text);
         localStorage.setItem('distCode', distOption.getAttribute('data-code'));
@@ -338,10 +380,29 @@
         toggleModal('settingsModal');
     }
 
+    function getAutoFinancialYear() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth(); // 0 = Jan, 1 = Feb, 2 = Mar, 3 = Apr
+
+        if (month >= 3) {
+            return `${year}-${year + 1}`;
+        } else {
+            return `${year - 1}-${year}`;
+        }
+    }
+
     function updateDisplay() {
         const savedDistrictText = localStorage.getItem('userDistrictText');
         const savedBlockText = localStorage.getItem('userBlockText');
         const savedTheme = localStorage.getItem('userTheme') || 'theme-slate';
+        let savedFinYear = localStorage.getItem('userFinYear');
+        
+        // Agar pehle se fin year save nahi hai to current year by default lelo
+        if (!savedFinYear) {
+            savedFinYear = getAutoFinancialYear();
+        }
+        document.getElementById('finYearSelect').value = savedFinYear;
         
         setThemePreview(savedTheme);
 
@@ -361,22 +422,27 @@
         const distName = (localStorage.getItem('userDistrictText') || "").toUpperCase();
         const blockCode = localStorage.getItem('blockCode') || "";
         const blockName = (localStorage.getItem('userBlockText') || "").toUpperCase();
+        
+        // Ab locally saved financial year ko uthayega
+        const currentFinYear = localStorage.getItem('userFinYear') || getAutoFinancialYear();
 
         document.querySelectorAll('a[data-template]').forEach(link => {
-            let template = link.getAttribute('data-template');
-            let finalUrl = template
-                .replace(/\[DIST_CODE\]/g, distCode)
-                .replace(/\[DIST_NAME\]/g, distName)
-                .replace(/\[STATE_NAME\]/g, "JHARKHAND")
-                .replace(/\[STATE_CODE\]/g, "34")
-                .replace(/\[BLOCK_CODE\]/g, blockCode)
-                .replace(/\[BLOCK_NAME\]/g, blockName)
-                .replace(/\[FIN_YEAR\]/g, "2025-2026");
-
+            link.onclick = null;
+            
             if(distCode && blockCode) {
+                let template = link.getAttribute('data-template');
+                let finalUrl = template
+                    .replace(/\[DIST_CODE\]/g, distCode)
+                    .replace(/\[DIST_NAME\]/g, distName)
+                    .replace(/\[STATE_NAME\]/g, "JHARKHAND")
+                    .replace(/\[STATE_CODE\]/g, "34")
+                    .replace(/\[BLOCK_CODE\]/g, blockCode)
+                    .replace(/\[BLOCK_NAME\]/g, blockName)
+                    .replace(/\[FIN_YEAR\]/g, currentFinYear); 
+
                 link.setAttribute('href', finalUrl);
             } else {
-                link.setAttribute('href', '#');
+                link.setAttribute('href', 'javascript:void(0);');
                 link.onclick = (e) => {
                     e.preventDefault();
                     toggleModal('settingsModal');

@@ -2,12 +2,17 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import os
+from dotenv import load_dotenv
+
+# Environment variables load karo .env file se
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'nrega_vibe_secret_key' 
+# Secret key aur admin pin ko env se fetch karo, ya default fallback use karo
+app.secret_key = os.environ.get('SECRET_KEY', 'nrega_vibe_secret_key') 
 
-# --- SET YOUR ADMIN PIN HERE ---
-ADMIN_PIN = '72528'
+# --- SET YOUR ADMIN PIN IN A .env FILE ---
+ADMIN_PIN = os.environ.get('ADMIN_PIN', '12345')
 
 # --- FIX: Absolute Path for Database ---
 basedir = os.path.abspath(os.path.dirname(__file__))

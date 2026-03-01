@@ -13,3 +13,6 @@ nrega_bookmarks.db
 
 # OS Files (Kyunki tum Mac use kar rahe ho)
 .DS_Store
+
+# Environment Variables (Secrets)
+.env
