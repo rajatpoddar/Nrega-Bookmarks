@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import os
+import csv
+import io
 from dotenv import load_dotenv
 
 # Environment variables load karo .env file se
@@ -9,7 +11,8 @@ load_dotenv()
 
 app = Flask(__name__)
 # Secret key aur admin pin ko env se fetch karo, ya default fallback use karo
-app.secret_key = os.environ.get('SECRET_KEY', 'nrega_vibe_secret_key') 
+app.secret_key = os.environ.get('SECRET_KEY', 'nrega_vibe_secret_key')
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max upload size
 
 # --- SET YOUR ADMIN PIN IN A .env FILE ---
 ADMIN_PIN = os.environ.get('ADMIN_PIN', '12345')
@@ -252,6 +255,161 @@ def download_backup():
     if os.path.exists(db_path):
         return send_file(db_path, as_attachment=True, download_name="nrega_bookmarks_backup.db")
     return "Database file not found!", 404
+
+
+@app.route('/admin/export_bookmarks')
+@admin_required
+def export_bookmarks():
+    """Saare categories aur links ek CSV file mein export karo."""
+    categories = Category.query.order_by(Category.sort_order).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Header row
+    writer.writerow([
+        'category_name',
+        'is_application',
+        'sort_order',
+        'title',
+        'url',
+        'icon_class',
+        'is_dynamic'
+    ])
+
+    for cat in categories:
+        for link in cat.links:
+            writer.writerow([
+                cat.name,
+                '1' if cat.is_application else '0',
+                cat.sort_order,
+                link.title,
+                link.url,
+                link.icon_class or '',
+                '1' if link.is_dynamic else '0'
+            ])
+
+    # Empty category bhi export karo (bina links ke)
+    for cat in categories:
+        if not cat.links:
+            writer.writerow([
+                cat.name,
+                '1' if cat.is_application else '0',
+                cat.sort_order,
+                '',  # no link
+                '',
+                '',
+                ''
+            ])
+
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8-sig')),  # utf-8-sig for Excel compatibility
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='bookmarks_export.csv'
+    )
+
+
+@app.route('/admin/import_bookmarks', methods=['POST'])
+@admin_required
+def import_bookmarks():
+    """CSV file se bookmarks import karo. Existing data replace nahi hogi — sirf naye add honge ya existing update honge."""
+    if 'csv_file' not in request.files:
+        flash('Koi file select nahi ki!', 'error')
+        return redirect(url_for('admin'))
+
+    file = request.files['csv_file']
+    if file.filename == '' or not file.filename.endswith('.csv'):
+        flash('Sirf .csv file allowed hai!', 'error')
+        return redirect(url_for('admin'))
+
+    replace_all = request.form.get('replace_all') == 'on'
+
+    try:
+        stream = io.StringIO(file.stream.read().decode('utf-8-sig'))
+        reader = csv.DictReader(stream)
+
+        required_cols = {'category_name', 'title', 'url'}
+        if not required_cols.issubset(set(reader.fieldnames or [])):
+            flash(f'CSV mein ye columns hone chahiye: {", ".join(required_cols)}', 'error')
+            return redirect(url_for('admin'))
+
+        if replace_all:
+            Link.query.delete()
+            Category.query.delete()
+            db.session.commit()
+
+        added_cats = 0
+        added_links = 0
+        updated_links = 0
+
+        # category cache taaki baar baar DB query na ho
+        cat_cache = {}
+
+        for row in reader:
+            cat_name = row.get('category_name', '').strip()
+            title = row.get('title', '').strip()
+            url = row.get('url', '').strip()
+
+            if not cat_name:
+                continue  # category name mandatory hai
+
+            # Category lookup / create
+            if cat_name not in cat_cache:
+                cat = Category.query.filter_by(name=cat_name).first()
+                if not cat:
+                    try:
+                        sort_order = int(row.get('sort_order', 0))
+                    except (ValueError, TypeError):
+                        sort_order = 0
+                    is_app = str(row.get('is_application', '0')).strip() in ('1', 'true', 'True', 'yes')
+                    cat = Category(name=cat_name, is_application=is_app, sort_order=sort_order)
+                    db.session.add(cat)
+                    db.session.flush()  # id generate karo
+                    added_cats += 1
+                cat_cache[cat_name] = cat
+            else:
+                cat = cat_cache[cat_name]
+
+            if not title or not url:
+                continue  # link fields nahi hain, skip
+
+            icon_class = row.get('icon_class', '').strip() or None
+            try:
+                is_dynamic = str(row.get('is_dynamic', '0')).strip() in ('1', 'true', 'True', 'yes')
+            except Exception:
+                is_dynamic = False
+
+            # Existing link dhundo (same title + category)
+            existing = Link.query.filter_by(title=title, category_id=cat.id).first()
+            if existing:
+                existing.url = url
+                existing.icon_class = icon_class
+                existing.is_dynamic = is_dynamic
+                updated_links += 1
+            else:
+                new_link = Link(
+                    title=title,
+                    url=url,
+                    icon_class=icon_class,
+                    is_dynamic=is_dynamic,
+                    category_id=cat.id
+                )
+                db.session.add(new_link)
+                added_links += 1
+
+        db.session.commit()
+        flash(
+            f'Import successful! {added_cats} new categories, {added_links} links added, {updated_links} links updated.',
+            'success'
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Import mein error aaya: {str(e)}', 'error')
+
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5000)
